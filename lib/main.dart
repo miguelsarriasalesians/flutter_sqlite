@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'SQLITE Demo'),
+      home: MyHomePage(title: 'Add tasks below'),
     );
   }
 }
@@ -96,6 +96,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   onTap: () {
                     _toggleTask(task);
                   },
+                  onLongPress: () {
+                    _deleteTask(task);
+                  },
                   leading: Icon(task.completed
                       ? Icons.check_box
                       : Icons.check_box_outline_blank),
@@ -115,6 +118,11 @@ class _MyHomePageState extends State<MyHomePage> {
   void _toggleTask(Task task) async {
     task.completed = !task.completed;
     await db.updateTask(task);
+    setState(() {});
+  }
+
+  void _deleteTask(Task task) async {
+    await db.deleteTask(task);
     setState(() {});
   }
 }

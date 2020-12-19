@@ -65,4 +65,8 @@ class TaskDataBase {
   Future updateTask(Task task) async {
     _db.update("tasks", task.toMap(), where: "id = ?", whereArgs: [task.id]);
   }
+
+  Future deleteTask(Task task) async {
+    _db.delete("tasks", where: "id = ?", whereArgs: [task.id]);
+  }
 }
