@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sqlite_tutorial/database.dart';
 
 void main() {
   runApp(MyApp());
@@ -29,9 +30,33 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<String> _tasks = [];
+  TaskDataBase db = TaskDataBase();
 
-  void _addTask() {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Center(child: Text(widget.title)),
+      ),
+      body: FutureBuilder(
+        future: db.initDB(),
+        builder: (BuildContext context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return _showList(context);
+          } else {
+            return Center(child: CircularProgressIndicator());
+          }
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _addTask,
+        tooltip: 'Increment',
+        child: Icon(Icons.add),
+      ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+
+  _addTask() {
     showDialog(
       context: context,
       builder: (context) {
@@ -43,9 +68,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 icon: Icon(Icons.add_circle_outline),
               ),
               onSubmitted: (text) {
+                var task = Task(text);
+                //No aparecía por esto, AAAAAAAAAAAAAAAAAAAAAAAAAAH!!!
                 setState(() {
-                  _tasks.add(text);
+                  db.insert(task);
                 });
+
                 Navigator.pop(context);
               },
             )
@@ -55,25 +83,26 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Center(child: Text(widget.title)),
-      ),
-      body: ListView(
-        children: <Widget>[
-          for (String task in _tasks)
-            ListTile(
-              title: Text(task),
-            )
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _addTask,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+  _showList(BuildContext context) {
+    return FutureBuilder(
+      future: db.getAllTasks(),
+      builder: (BuildContext context, AsyncSnapshot<List<Task>> snapshot) {
+        //Comprobar si hay registros
+        if (snapshot.hasData) {
+          return ListView(
+            children: <Widget>[
+              for (Task task in snapshot.data)
+                ListTile(
+                  title: Text(task.name),
+                )
+            ],
+          );
+        } else {
+          return Center(
+            child: Text('Add a Task'),
+          );
+        }
+      },
     );
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:sqflite/sqflite.dart';
 
 class Task {
@@ -24,7 +26,7 @@ class TaskDataBase {
   //Abrir la base de datos
   initDB() async {
     _db = await openDatabase(
-      'my_db.db',
+      'my_db2.db',
       version: 1,
       //Se ejecuta cuando se cree este archivo por primera vez
       onCreate: (db, version) {
@@ -32,18 +34,21 @@ class TaskDataBase {
             "CREATE TABLE tasks(id INTEGER PRIMARY KEY, name TEXT NOT NULL);");
       },
     );
+    print("DB INITIALIZED");
   }
 
   //Introducir tareas en la base de datos
-  insert(Task task) {
-    _db.insert("tasks", task.toMap());
+  insert(Task task) async {
+    await _db.insert("tasks", task.toMap());
   }
 
-  //Obtener todas las tareas
+  //Obtener todas las tareas de la base de datos
   Future<List<Task>> getAllTasks() async {
     //La funcion _db.query devuelve una List<Map<String, dynamic>>
     List<Map<String, dynamic>> results = await _db.query("tasks");
-    List<Task> taskList = results.map((map) => Task.fromMap(map));
+    //La funcion embebida fromMap genera un objeto Task a partir del mapa, genera tantas Task como mapas en la lista results
+    List<Task> taskList = results.map((map) => Task.fromMap(map)).toList();
+    print("Got: ${results.length}");
     return taskList;
   }
 }
