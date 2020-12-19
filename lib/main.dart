@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:sqlite_tutorial/database.dart';
 
@@ -31,6 +32,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   TaskDataBase db = TaskDataBase();
+  String newTaskText = "";
 
   @override
   Widget build(BuildContext context) {
@@ -65,21 +67,43 @@ class _MyHomePageState extends State<MyHomePage> {
       builder: (context) {
         return SimpleDialog(
           children: [
-            TextField(
-              autofocus: true,
-              decoration: InputDecoration(
-                icon: Icon(Icons.add_circle_outline),
+            Center(
+                child: Text(
+              'Add a new task',
+              style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue),
+            )),
+            Container(
+              margin: EdgeInsets.fromLTRB(20, 0, 30, 30),
+              child: TextField(
+                autofocus: true,
+                onChanged: (text) {
+                  newTaskText = text;
+                },
               ),
-              onSubmitted: (text) {
-                var task = Task(null, text, false);
-                //No aparecía por esto, AAAAAAAAAAAAAAAAAAAAAAAAAAH!!!
-                setState(() {
-                  db.insert(task);
-                });
-
+            ),
+            InkWell(
+              onTap: () {
+                if (newTaskText.length > 0) {
+                  var task = Task(null, newTaskText, false);
+                  setState(() {
+                    db.insert(task);
+                  });
+                }
+                newTaskText = "";
                 Navigator.pop(context);
               },
-            )
+              child: Pulse(
+                infinite: true,
+                child: Icon(
+                  Icons.save,
+                  color: Colors.blue,
+                  size: 45,
+                ),
+              ),
+            ),
           ],
         );
       },
@@ -128,7 +152,7 @@ class _MyHomePageState extends State<MyHomePage> {
           );
         } else {
           return Center(
-            child: Text('Add a Task'),
+            child: Text(''),
           );
         }
       },
