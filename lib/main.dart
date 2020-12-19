@@ -68,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 icon: Icon(Icons.add_circle_outline),
               ),
               onSubmitted: (text) {
-                var task = Task(text);
+                var task = Task(null, text, false);
                 //No aparecía por esto, AAAAAAAAAAAAAAAAAAAAAAAAAAH!!!
                 setState(() {
                   db.insert(task);
@@ -93,6 +93,12 @@ class _MyHomePageState extends State<MyHomePage> {
             children: <Widget>[
               for (Task task in snapshot.data)
                 ListTile(
+                  onTap: () {
+                    _toggleTask(task);
+                  },
+                  leading: Icon(task.completed
+                      ? Icons.check_box
+                      : Icons.check_box_outline_blank),
                   title: Text(task.name),
                 )
             ],
@@ -104,5 +110,11 @@ class _MyHomePageState extends State<MyHomePage> {
         }
       },
     );
+  }
+
+  void _toggleTask(Task task) async {
+    task.completed = !task.completed;
+    await db.updateTask(task);
+    setState(() {});
   }
 }
