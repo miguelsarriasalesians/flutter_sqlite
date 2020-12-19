@@ -38,15 +38,18 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Center(child: Text(widget.title)),
       ),
-      body: FutureBuilder(
-        future: db.initDB(),
-        builder: (BuildContext context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return _showList(context);
-          } else {
-            return Center(child: CircularProgressIndicator());
-          }
-        },
+      body: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 12),
+        child: FutureBuilder(
+          future: db.initDB(),
+          builder: (BuildContext context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              return _showList(context);
+            } else {
+              return Center(child: CircularProgressIndicator());
+            }
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _addTask,
@@ -92,17 +95,34 @@ class _MyHomePageState extends State<MyHomePage> {
           return ListView(
             children: <Widget>[
               for (Task task in snapshot.data)
-                ListTile(
-                  onTap: () {
-                    _toggleTask(task);
-                  },
-                  onLongPress: () {
-                    _deleteTask(task);
-                  },
-                  leading: Icon(task.completed
-                      ? Icons.check_box
-                      : Icons.check_box_outline_blank),
-                  title: Text(task.name),
+                Container(
+                  margin: EdgeInsets.symmetric(vertical: 6),
+                  decoration: BoxDecoration(
+                      color: task.completed
+                          ? Color(0xff65d459)
+                          : Color(0xffe63030),
+                      borderRadius: BorderRadius.circular(15)),
+                  child: ListTile(
+                    onTap: () {
+                      _toggleTask(task);
+                    },
+                    onLongPress: () {
+                      _deleteTask(task);
+                    },
+                    leading: Icon(
+                      task.completed
+                          ? Icons.check_box
+                          : Icons.check_box_outline_blank,
+                      color: task.completed ? Colors.black54 : Colors.white,
+                    ),
+                    title: Text(
+                      task.name,
+                      style: TextStyle(
+                          color: task.completed ? Colors.black54 : Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18),
+                    ),
+                  ),
                 )
             ],
           );
